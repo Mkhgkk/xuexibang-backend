@@ -17,11 +17,17 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     maxlength: 1024
   },
+  // newPassword: {
+  //   type: String,
+  //   minlength: 6,
+  //   maxlength: 1024
+  // },
   //   name: {
   //        type: String,
   //        minlength: 1,
   //        maxlength: 50
   //     },
+
   isAdmin: Boolean
 });
 
@@ -46,8 +52,13 @@ function validateUser(user) {
       .min(6)
       .max(255)
       .required()
+    // newPassword: Joi.string()
+    //   .min(6)
+    //   .max(255)
+    //   .required()
   };
   return Joi.validate(user, schema);
 }
 
-(exports.User = User), (exports.validate = validateUser);
+exports.User = User;
+exports.validate = validateUser;
