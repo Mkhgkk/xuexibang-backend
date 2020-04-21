@@ -1,5 +1,5 @@
 const express = require("express");
-const { Course, validate } = require("../../models/course")
+const { Feed, validate } = require("../../models/feed")
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -10,7 +10,7 @@ router.post("/", async (req, res) => {
     // const { error } = validate(req.body);
     // if (error) return res.status(400).send(error.details[0].message);
 
-    let university = new Course({ name: req.body.name, number: req.body.number, university: req.body.university, laoshi: req.body.laoshi })
+    let university = new Feed({ postedBy: req.body.postedBy, type: req.body.type, content: req.body.content })
     university = await university.save()
     res.send(university)
 })
