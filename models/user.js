@@ -17,11 +17,6 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     maxlength: 1024
   },
-  newPassword: {
-    type: String,
-    minlength: 6,
-    maxlength: 1024
-  },
   userName: {
     type: String,
     minlength: 1,
