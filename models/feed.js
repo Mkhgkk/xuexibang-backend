@@ -11,6 +11,10 @@ const feedSchema = new mongoose.Schema({
         enum: ['homework', 'announcement'],
         required: true
     },
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course'
+    },
     deadline: {
         type: Date,
     },
