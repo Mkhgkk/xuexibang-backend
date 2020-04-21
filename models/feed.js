@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
+Joi.objectId = require('joi-objectid')(Joi)
+
 const feedSchema = new mongoose.Schema({
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
