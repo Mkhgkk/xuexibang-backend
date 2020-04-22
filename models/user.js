@@ -3,7 +3,7 @@ const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 
-Joi.objectId = require('joi-objectid')(Joi)
+Joi.objectId = require("joi-objectid")(Joi);
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-userSchema.methods.generateAuthToken = function () {
+userSchema.methods.generateAuthToken = function() {
   const token = jwt.sign(
     { _id: this._id, isAdmin: this.isAdmin },
     config.get("jwtPrivateKey")
@@ -83,8 +83,8 @@ function validateUser(user) {
       .min(5)
       .max(1024),
     inAdmin: Joi.boolean(),
-    university: Joi.string(),
-    major: Joi.string(),
+    university: Joi.objectId(),
+    major: Joi.objectId(),
     courses: Joi.array().items(Joi.objectId())
   });
   return Joi.validate(user, schema);
