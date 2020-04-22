@@ -25,8 +25,7 @@ const courseSchema = new mongoose.Schema({
     required: true
   },
   laoshi: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Laoshi"
+    type: String
   },
   semester: {
     type: String
@@ -61,20 +60,20 @@ function validateCourse(course) {
   const schema = {
     name: Joi.string()
       .min(2)
-      .max(50)
-      .required(),
-    number: Joi.number().required(),
-    university: Joi.objectId().required(),
-    major: Joi.objectId().required(),
-    laoshi: Joi.objectId(),
-    semester: Joi.objectId(),
-    weeks: Joi.objectId(),
-    time: Joi.objectId(),
-    classroom: Joi.objectId(),
-    qqNumber: Joi.objectId(),
-    notes: Joi.objectId(),
-    thumbnail: Joi.objectId(),
-    admin: Joi.array().items(Joi.objectId())
+      .max(50),
+    number: Joi.number(),
+    university: Joi.objectId(),
+    major: Joi.objectId(),
+    laoshi: Joi.string(),
+    semester: Joi.string(),
+    weeks: Joi.string(),
+    time: Joi.string(),
+    classroom: Joi.string(),
+    qqNumber: Joi.string(),
+    notes: Joi.string(),
+    thumbnail: Joi.string(),
+    admin: Joi.array().items(Joi.objectId()),
+    _id: Joi.objectId()
   };
 
   return Joi.validate(course, schema);

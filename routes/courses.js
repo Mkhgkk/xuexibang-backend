@@ -4,16 +4,16 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const _ = require("lodash");
 
-router.get("/", (req, res) => {
-    const courses = await Course.find().sort('number');
-    res.send(courses);
+router.get("/", async (req, res) => {
+  const courses = await Course.find().sort("number");
+  res.send(courses);
 });
 
-router.get(":/id", auth, async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   const course = await Course.findById(req.params.id);
   if (!course)
     return res.status(404).send("The course with the given ID dosen't exist.");
-  res.send(movie);
+  res.send(course);
 });
 
 router.post("/", auth, async (req, res) => {
@@ -62,12 +62,12 @@ router.delete("/", auth, async (req, res) => {
 });
 
 //admin only
-router.put("/", auth, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   const course = await Course.findByIdAndUpdate(
-    req.body._id,
+    req.params.id,
     {
       weeks: req.body.weeks,
       laoshi: req.body.laoshi,
@@ -80,7 +80,7 @@ router.put("/", auth, async (req, res) => {
   );
 
   if (!course) return res.status(404).send("Course does not exist.");
-  res.send(user);
+  res.send(course);
 });
 
 module.exports = router;
