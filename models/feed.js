@@ -1,41 +1,55 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-Joi.objectId = require('joi-objectid')(Joi)
+Joi.objectId = require("joi-objectid")(Joi);
 
 const feedSchema = new mongoose.Schema({
-    postedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    type: {
-        type: String,
-        enum: ['homework', 'announcement'],
-        required: true
-    },
-    course: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course'
-    },
-    deadline: {
-        type: Date,
-    },
-    datePosted: {
-        type: Date
-    },
-    content: {
-        type: String,
-        required: true
-    }
-
-})
+  postedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  type: {
+    type: String,
+    enum: ["homework", "announcement"],
+    required: true
+  },
+  course: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Course",
+    required: true
+  },
+  deadline: {
+    type: Date
+  },
+  datePosted: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  content: {
+    type: String,
+    required: true,
+    minlength: 2,
+    maxlength: 3000
+  }
+});
 
 const Feed = mongoose.model("Feed", feedSchema);
 
 function validateFeed(feed) {
-    const schema = {
-        type: Joi.string()
-    }
+  const schema = {
+    postedBy: Joi.objectId(),
+    type: Joi.string(),
+    course: Joi.objectId(),
+    deadline: Joi.date(),
+    datePosted: Joi.date(),
+    content: Joi.string()
+      .min(2)
+      .max(3000)
+  };
+
+  return Joi.validate(feed, schema);
 }
 
 exports.Feed = Feed;
