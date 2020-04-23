@@ -1,9 +1,9 @@
-const mongoose = reqire("mongoose");
 const Joi = require("joi");
+const mongoose = require("mongoose");
 
 Joi.objectId = require('joi-objectid')(Joi)
 
-const commentSchema = new mongoose.SChema({
+const commentSchema = new mongoose.Schema({
     content: {
         type: String,
         required: true,
@@ -21,16 +21,16 @@ const commentSchema = new mongoose.SChema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Feed'
     },
-})
+});
 
-const Comment = mongoose.model("Feed", commentSchema);
+const Comment = mongoose.model("Comment", commentSchema);
 
 function validateComment(comment) {
     const schema = Joi.object({
         content: Joi.string().required(),
-        postedBy: Joi.objectId,
+        postedBy: Joi.objectId(),
         datePosted: Joi.date(),
-        feedId: Joi.objectId.required()
+        feedId: Joi.objectId()
     })
 
     return Joi.validate(comment, schema)
