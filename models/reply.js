@@ -1,4 +1,4 @@
-const mongoose = reqire("mongoose");
+const mongoose = require("mongoose");
 const Joi = require("joi");
 
 Joi.objectId = require('joi-objectid')(Joi)
@@ -27,9 +27,9 @@ const Reply = mongoose.model("Reply", replySchema)
 function validateReply(reply) {
     const schema = Joi.object({
         content: Joi.string().required(),
-        postedBy: Joi.objectId,
+        postedBy: Joi.objectId(),
         datePosted: Joi.date(),
-        commentId: Joi.objectId.required()
+        commentId: Joi.objectId()
     });
 
     return Joi.validate(reply, schema);
