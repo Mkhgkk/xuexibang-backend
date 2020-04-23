@@ -4,6 +4,8 @@ const { User } = require("../../models/user");
 const router = express.Router();
 const auth = require("../../middleware/auth");
 const _ = require("lodash");
+const validateObjectId = require("../../middleware/validateObjectId");
+const admin = require("../../middleware/admin");
 
 router.get("/", auth, async (req, res) => {
   const courses = await Course.find()
@@ -12,7 +14,7 @@ router.get("/", auth, async (req, res) => {
   res.send(courses);
 });
 
-router.get("/:id", auth, async (req, res) => {
+router.get("/course/:id", [auth, validateObjectId], async (req, res) => {
   const course = await Course.findById(req.params.id);
   if (!course)
     return res.status(404).send("The course with the given ID dosen't exist.");
@@ -20,13 +22,13 @@ router.get("/:id", auth, async (req, res) => {
   res.send(course);
 });
 
-router.get("/students/:courseId", auth, async (req, res) => {
-  const course = await Course.findById(req.params.courseId);
+router.get("/:id/students", [auth, validateObjectId], async (req, res) => {
+  const course = await Course.findById(req.params.id);
   if (!course)
     return res.status(404).send("The course with the given ID does not exist.");
 
   const students = await User.find({
-    courses: { $in: [req.params.courseId] }
+    courses: { $in: [req.params.id] }
   })
     .select("userName, avatar, _id")
     .sort("userName");
@@ -34,27 +36,25 @@ router.get("/students/:courseId", auth, async (req, res) => {
   res.send(students);
 });
 
-router.get("/mycourses", auth, async (req, res) => {
-  const user = await User.findById(req.user._id).sort("name");
-  const selectedCourses = user.courses;
+router.get("/myCourses", auth, async (req, res) => {
+  const user = await User.findById(req.user._id);
 
-  const courses = await Course.find({ _id: { $in: selectedCourses } });
-  if (!courses) return res.send("No course found for you");
+  const courses = await Course.find({
+    _id: { $in: user.courses }
+  }).sort("name");
 
   res.send(courses);
 });
 
-//admin only
-router.get("/admin", auth, async (req, res) => {
+router.get("/admin", [auth, admin], async (req, res) => {
   const courses = await Course.find({ admin: { $in: [req.user._id] } }).sort(
     "name"
   );
-  if (!courses) return res.send("No course found for you");
 
   res.send(courses);
 });
-//admin only
-router.post("/", auth, async (req, res) => {
+
+router.post("/", [auth, admin], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -87,8 +87,7 @@ router.post("/", auth, async (req, res) => {
   res.send(course);
 });
 
-//admin only
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", [auth, admin, validateObjectId], async (req, res) => {
   const course = await Course.deleteOne({ _id: req.params.id });
 
   if (!course) return res.status(404).send("This course does not exist.");
@@ -96,8 +95,7 @@ router.delete("/:id", auth, async (req, res) => {
   res.send(course);
 });
 
-//admin only
-router.put("/:id", auth, async (req, res) => {
+router.put("/:id", [auth, admin, validateObjectId], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
