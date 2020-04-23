@@ -4,58 +4,34 @@ const { Course } = require("../../models/course");
 const { Feed, validate } = require("../../models/feed");
 const auth = require("../../middleware/auth");
 const _ = require("lodash");
+const mongoose = require("mongoose");
 const router = express.Router();
 
 router.get("/", auth, async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
-  const selectedCourses = user.courses;
+    const user = await User.findById(req.user._id).select("-password");
 
-  const feeds = await Feed.find().select("-__v");
-  if (!feeds) return res.status(404).send("No feeds found for you");
+    const feeds = await Feed.find({ course: { $in: user.courses } }).select("-__v");
+    if (!feeds) return res.send("No feeds found for you");
 
-  const courses = _.intersection(
-    feeds.map(feed => feed.course, selectedCourses)
-  );
+    // const selectedCourses = user.courses.map(courseId => mongoose.Types.ObjectId(courseId).toHexString());
 
-  res.send(courses);
-});
+    // const results = feeds.filter(feed => selectedCourses.includes(mongoose.Types.ObjectId(feed.course).toHexString()));
 
-router.post("/", auth, async (req, res) => {
-  // const { error } = validate(req.body);
-  // if (error) return res.status(400).send(error.details[0].message);
+    // const courses = _.intersection(feeds.map(feed => mongoose.Types.ObjectId(feed.course).toHexString()), selectedCourses);
 
-  let feed = new Feed({
-    postedBy: req.body.postedBy,
-    type: req.body.type,
-    course: req.body.course,
-    content: req.body.content
-  });
-  feed = await feed.save();
-  res.send(feed);
-});
+    res.send(feeds)
+})
 
-router.get("/announcement", auth, async (req, res) => {
-  const user = await User.findById(req.user._id);
-  const selectedCourses = user.courses;
+router.post("/", async (req, res) => {
+    // const { error } = validate(req.body);
+    // if (error) return res.status(400).send(error.details[0].message);
 
-  const homeworks = await Feed.find({
-    type: "announcement",
-    course: { $in: selectedCourses }
-  });
+    let feed = new Feed({ postedBy: req.body.postedBy, type: req.body.type, course: req.body.course, content: req.body.content })
+    feed = await feed.save()
+    res.send(feed)
 
-  res.send(homeworks);
-});
 
-router.get("/homework", auth, async (req, res) => {
-  const user = await User.findById(req.user._id);
-  const selectedCourses = user.courses;
+})
 
-  const homeworks = await Feed.find({
-    type: "homework",
-    course: { $in: selectedCourses }
-  });
-
-  res.send(homeworks);
-});
 
 module.exports = router;
