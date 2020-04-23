@@ -1,7 +1,8 @@
 const express = require("express");
-const { Course, validate } = require("../models/course");
+const { Course, validate } = require("../../models/course");
+const { User } = require("../../models/user");
 const router = express.Router();
-const auth = require("../middleware/auth");
+const auth = require("../../middleware/auth");
 const _ = require("lodash");
 
 router.get("/", async (req, res) => {
@@ -16,6 +17,22 @@ router.get("/:id", auth, async (req, res) => {
   res.send(course);
 });
 
+router.get("/mycourses", auth, async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const selectedCourses = user.courses;
+
+  const courses = await Course.find({ _id: { $in: selectedCourses } });
+
+  res.send(courses);
+});
+
+router.get("/admin", auth, async (req, res) => {
+  const courses = await Course.find({ admin: { $in: [req.user._id] } });
+
+  res.send(courses);
+});
+
+//admin only
 router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
