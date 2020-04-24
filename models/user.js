@@ -3,6 +3,8 @@ const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 
+Joi.objectId = require("joi-objectid")(Joi);
+
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -14,11 +16,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 6,
-    maxlength: 1024
-  },
-  newPassword: {
-    type: String,
     minlength: 6,
     maxlength: 1024
   },
@@ -42,21 +39,19 @@ const userSchema = new mongoose.Schema({
   major: {
     type: String
   },
+
+  university: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "University"
+  },
+  major: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Major"
+  },
   courses: {
-    type: Array
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Course"
   }
-  // university: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "University"
-  // },
-  // major: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "Major"
-  // },
-  // courses: {
-  //   type: [mongoose.Schema.Types.ObjectId],
-  //   ref: "Course"
-  // }
 });
 
 userSchema.methods.generateAuthToken = function() {
@@ -70,7 +65,7 @@ userSchema.methods.generateAuthToken = function() {
 const User = mongoose.model("User", userSchema);
 
 function validateUser(user) {
-  const schema = {
+  const schema = Joi.object({
     email: Joi.string()
       .min(5)
       .max(255)
@@ -88,10 +83,10 @@ function validateUser(user) {
       .min(5)
       .max(1024),
     inAdmin: Joi.boolean(),
-    university: Joi.string(),
-    major: Joi.string(),
-    courses: Joi.array()
-  };
+    university: Joi.objectId(),
+    major: Joi.objectId(),
+    courses: Joi.array().items(Joi.objectId())
+  });
   return Joi.validate(user, schema);
 }
 

@@ -1,63 +1,82 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
+Joi.objectId = require("joi-objectid")(Joi);
+
 const courseSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        minlength: 5,
-        maxlength: 50,
-    },
-    number: {
-        type: Number,
-        required: true,
+  name: {
+    type: String,
+    required: true,
+    minlength: 2,
+    maxlength: 50
+  },
+  number: {
+    type: Number,
+    required: true
+  },
+  university: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "University",
+    required: true
+  },
+  major: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Major",
+    required: true
+  },
+  laoshi: {
+    type: String
+  },
+  semester: {
+    type: String
+  },
+  weeks: {
+    type: String
+  },
+  time: {
+    type: String
+  },
+  classroom: {
+    type: String
+  },
+  qqNumber: {
+    type: Number
+  },
+  notes: {
+    type: String
+  },
+  thumbnail: {
+    type: String
+  },
+  admin: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "User"
+  }
+});
 
-    },
-    university: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'University',
-
-    },
-    laoshi: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Laoshi'
-    },
-    semester: {
-        type: String,
-    },
-    weeks: {
-        type: String
-    },
-    Time: {
-        type: String
-    },
-    classroom: {
-        type: String
-    },
-    qqNumber: {
-        type: Number
-    },
-    Notes: {
-        type: String
-    },
-    Thumbnail: {
-        type: String
-    }
-
-})
-
-const Course = mongoose.model("Course", courseSchema)
+const Course = mongoose.model("Course", courseSchema);
 
 function validateCourse(course) {
-    const schema = {
-        name: Joi.string().min(5).max(50).required(),
-        number: Joi.number().required(),
-        // name: Joi.ObjectId(),
-        // name: Joi.ObjectId(),
+  const schema = {
+    name: Joi.string()
+      .min(2)
+      .max(50),
+    number: Joi.number(),
+    university: Joi.objectId(),
+    major: Joi.objectId(),
+    laoshi: Joi.string(),
+    semester: Joi.string(),
+    weeks: Joi.string(),
+    time: Joi.string(),
+    classroom: Joi.string(),
+    qqNumber: Joi.string(),
+    notes: Joi.string(),
+    thumbnail: Joi.string(),
+    admin: Joi.array().items(Joi.objectId()),
+    _id: Joi.objectId()
+  };
 
-    }
-
-    return Joi.validate(course, schema);
+  return Joi.validate(course, schema);
 }
 
 exports.courseSchema = courseSchema;
