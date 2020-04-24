@@ -14,7 +14,7 @@ router.get("/", auth, async (req, res) => {
   res.send(courses);
 });
 
-router.get("/course/:id", [auth, validateObjectId], async (req, res) => {
+router.get("/course/:courseId", [validateObjectId], async (req, res) => {
   const course = await Course.findById(req.params.id);
   if (!course)
     return res.status(404).send("The course with the given ID dosen't exist.");
@@ -22,7 +22,7 @@ router.get("/course/:id", [auth, validateObjectId], async (req, res) => {
   res.send(course);
 });
 
-router.get("/:id/students", [auth, validateObjectId], async (req, res) => {
+router.get("/:courseId/students", [auth, validateObjectId], async (req, res) => {
   const course = await Course.findById(req.params.id);
   if (!course)
     return res.status(404).send("The course with the given ID does not exist.");
