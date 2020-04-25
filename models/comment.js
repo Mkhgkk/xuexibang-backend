@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 Joi.objectId = require('joi-objectid')(Joi)
 
@@ -15,6 +16,7 @@ const commentSchema = new mongoose.Schema({
     },
     datePosted: {
         type: Date,
+        default: moment().toJSON(),
         required: false
     },
     feedId: {
