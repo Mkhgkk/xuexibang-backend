@@ -11,7 +11,7 @@ const courseSchema = new mongoose.Schema({
     maxlength: 50
   },
   number: {
-    type: Number,
+    type: String,
     required: true
   },
   university: {
@@ -61,7 +61,7 @@ function validateCourse(course) {
     name: Joi.string()
       .min(2)
       .max(50),
-    number: Joi.number(),
+    number: Joi.string(),
     university: Joi.objectId(),
     major: Joi.objectId(),
     laoshi: Joi.string(),
