@@ -16,7 +16,17 @@ describe("/api/courses", () => {
   });
 
   describe("GET /", () => {
-    it("should return all courses", async () => {
+    let token;
+
+    const exec = async () => {
+      return await request(server)
+        .get("/api/courses")
+        .set("x-auth-token", token);
+    };
+
+    beforeEach(async () => {
+      token = new User().generateAuthToken();
+
       await Course.collection.insertMany([
         {
           name: "course1",
@@ -31,10 +41,18 @@ describe("/api/courses", () => {
           major: mongoose.Types.ObjectId()
         }
       ]);
+    });
 
-      const res = await request(server)
-        .get("/api/courses")
-        .set("x-auth-token", new User().generateAuthToken());
+    it("should return 401 if client is not logged in", async () => {
+      token = "";
+
+      const res = await exec();
+
+      expect(res.status).toBe(401);
+    });
+
+    it("should return all courses", async () => {
+      const res = await exec();
 
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(2);
@@ -232,6 +250,153 @@ describe("/api/courses", () => {
         "university",
         "major"
       );
+    });
+  });
+
+  describe("PUT /:id", () => {
+    let token;
+    let newNotes;
+    let id;
+    let course;
+
+    const exec = async () => {
+      return await request(server)
+        .put("/api/courses/" + id)
+        .set("x-auth-token", token)
+        .send({ notes: newNotes });
+    };
+
+    beforeEach(async () => {
+      course = new Course({
+        name: "course1",
+        number: "1",
+        university: mongoose.Types.ObjectId(),
+        major: mongoose.Types.ObjectId(),
+        notes: "note"
+      });
+      await course.save();
+
+      token = new User({ isAdmin: true }).generateAuthToken();
+      id = course._id;
+      newNotes = "new note";
+    });
+
+    it("should return 401 if client is not logged in", async () => {
+      token = "";
+
+      const res = await exec();
+
+      expect(res.status).toBe(401);
+    });
+
+    it("should return 403 if client is not admin", async () => {
+      token = new User().generateAuthToken();
+
+      const res = await exec();
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 404 if invalid Id is passed", async () => {
+      id = 1;
+
+      const res = await exec();
+
+      expect(res.status).toBe(404);
+    });
+
+    it("should return 404 if no course with the given Id", async () => {
+      id = mongoose.Types.ObjectId();
+
+      const res = await exec();
+
+      expect(res.status).toBe(404);
+    });
+
+    it("should update the course if it is valid", async () => {
+      await exec();
+
+      const updatedCourse = await Course.findById(course._id);
+
+      expect(updatedCourse.notes).toBe(newNotes);
+    });
+
+    it("should return the updated course if it is valid", async () => {
+      const res = await exec();
+
+      expect(res.body).toHaveProperty("notes", newNotes);
+    });
+  });
+
+  describe("DELETE /:id", () => {
+    let token;
+    let id;
+    let course;
+
+    const exec = async () => {
+      return await request(server)
+        .delete("/api/courses/" + id)
+        .set("x-auth-token", token)
+        .send();
+    };
+
+    beforeEach(async () => {
+      course = new Course({
+        name: "course1",
+        number: "1",
+        university: mongoose.Types.ObjectId(),
+        major: mongoose.Types.ObjectId()
+      });
+      await course.save();
+
+      token = new User({ isAdmin: true }).generateAuthToken();
+      id = course._id;
+    });
+
+    it("should return 401 if client is not logged in", async () => {
+      token = "";
+
+      const res = await exec();
+
+      expect(res.status).toBe(401);
+    });
+
+    it("should return 403 if client is not an admin", async () => {
+      token = new User().generateAuthToken();
+
+      const res = await exec();
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 404 if invalid Id is passed", async () => {
+      id = 1;
+
+      const res = await exec();
+
+      expect(res.status).toBe(404);
+    });
+
+    it("should return 404 if no course with the given Id", async () => {
+      id = mongoose.Types.ObjectId();
+
+      const res = await exec();
+
+      expect(res.status).toBe(404);
+    });
+
+    it("should delete the course if given id is valid", async () => {
+      await exec();
+
+      const result = await Course.findById(id);
+
+      expect(result).toBeNull();
+    });
+
+    it("should return the removed course", async () => {
+      const res = await exec();
+
+      expect(res.body).toHaveProperty("_id", course._id.toHexString());
     });
   });
 });
