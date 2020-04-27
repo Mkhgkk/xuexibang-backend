@@ -54,9 +54,12 @@ router.put("/password", auth, async (req, res) => {
   const validPassword = await bcrypt.compare(req.body.password, user.password);
   if (!validPassword) return res.status(400).send("Invalid email or password.");
 
-  user = await User.findOneAndUpdate(
-    { _id: req.user._id },
-    { $set: { password: req.body.newPassword } }
+  user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      password: req.body.newPassword
+    },
+    { new: true }
   );
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
@@ -83,7 +86,6 @@ router.put("/", auth, async (req, res) => {
     { new: true }
   );
 
-  if (!user) return res.status(404).send("User does not exist.");
   res.send(user);
 });
 

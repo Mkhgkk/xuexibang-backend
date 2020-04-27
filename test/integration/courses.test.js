@@ -102,7 +102,7 @@ describe("/api/courses", () => {
 
       const user = new User({
         email: "a@b.c",
-        password: 123456,
+        password: "123456",
         courses: [course._id]
       });
       await user.save();
@@ -138,7 +138,7 @@ describe("/api/courses", () => {
 
       const user = new User({
         email: "a@b.c",
-        password: 123456,
+        password: "123456",
         courses: [course._id]
       });
       await user.save();
@@ -156,7 +156,7 @@ describe("/api/courses", () => {
     it("should return admining course lists for the user", async () => {
       const user = new User({
         email: "a@b.c",
-        password: 123456,
+        password: "123456",
         isAdmin: true
       });
       await user.save();
