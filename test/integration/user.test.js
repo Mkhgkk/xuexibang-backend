@@ -106,8 +106,8 @@ describe("/api/users", () => {
     let token;
     let password;
 
-    const exec = async () => {
-      return await request(server)
+    const exec = () => {
+      return request(server)
         .delete("/api/users")
         .set("x-auth-token", token)
         .send({ email: "a@b.c", password });
@@ -147,7 +147,7 @@ describe("/api/users", () => {
     });
 
     // it("should delete the user", async () => {
-    //  await exec();
+    //   await exec();
 
     //   const result = await User.findById(user._id);
 
