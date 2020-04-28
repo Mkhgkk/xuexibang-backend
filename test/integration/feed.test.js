@@ -202,7 +202,7 @@ describe("/api/feeds", () => {
         })
     });
 
-    describe("PUT /", () => {
+    describe("PUT /:id", () => {
         let id;
         let newContent;
 
@@ -225,24 +225,144 @@ describe("/api/feeds", () => {
 
             await feed.save();
 
+            user = await User.findByIdAndUpdate(user._id, {
+                isAdmin: true
+            }, { new: true })
+
+            token = user.generateAuthToken()
+
             id = feed._id;
 
             newContent = "new content";
         });
 
-        it("should return 401 if client is not logged in", () => {
+        it("should return 401 if client is not logged in", async () => {
             token = "";
 
-            const res = exec();
+            const res = await exec();
 
             expect(res.status).toBe(401);
         });
 
-        it("should return 200", () => {
+        it("should return 403 if client is not admin", async () => {
+            user = await User.findByIdAndUpdate(user._id, {
+                isAdmin: false
+            }, { new: true });
 
-            const res = exec();
+            token = user.generateAuthToken()
+
+            const res = await exec();
+
+            expect(res.status).toBe(403);
+        });
+
+        it("return 404 if Id is invalid Id is passed", async () => {
+            id = 1;
+
+            const res = await exec();
+
+            expect(res.status).toBe(404);
+        });
+
+        it("should update the feed is a valid Id is passed", async () => {
+            const res = await exec();
 
             expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("content", newContent)
         });
+
+        it("should return the updated feed if a valid id is passed", async () => {
+            const res = await exec();
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("content", newContent);
+            expect(res.body).toHaveProperty("postedBy")
+        });
+
+    });
+
+    describe("DELETE /:id", () => {
+        let token;
+        let feed;
+        let id;
+
+        const exec = () => {
+            return request(server)
+                .delete(`/api/feeds/${id}`)
+                .set("x-auth-token", token)
+                .send();
+        };
+
+        beforeEach(async () => {
+            feed = new Feed({
+                postedBy: user._id,
+                type: "announcement",
+                course: mongoose.Types.ObjectId(),
+                deadline: moment().toJSON(),
+                datePosted: moment().toJSON(),
+                content: "This is another test content"
+            });
+
+            await feed.save();
+
+            user = await User.findByIdAndUpdate(user._id, {
+                isAdmin: true
+            }, { new: true })
+
+            token = user.generateAuthToken()
+
+            id = feed._id;
+        });
+
+        it("should return 401 if client is not logged in", async () => {
+            token = "";
+
+            const res = await exec();
+
+            expect(res.status).toBe(401);
+        });
+
+        it("should return 403 if client is not admin", async () => {
+            user = await User.findByIdAndUpdate(user._id, {
+                isAdmin: false
+            }, { new: true });
+
+            token = user.generateAuthToken();
+
+            const res = await exec();
+
+            expect(res.status).toBe(403);
+        });
+
+        it("should return 404 if invalid Id is passed", async () => {
+            id = 1;
+
+            const res = await exec();
+
+            expect(res.status).toBe(404);
+        });
+
+        it("should return 404 if no feed with the given Id is passed", async () => {
+            id = mongoose.Types.ObjectId;
+
+            const res = await exec();
+
+            expect(res.status).toBe(404);
+        });
+
+        it("should delete the feed if given Id is valid", async () => {
+            await exec()
+
+            const result = await Feed.findById(feed._id);
+
+            expect(result).toBeNull();
+        });
+
+        it("should return the deleted feed", async () => {
+            const res = await exec();
+
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("ok");
+        })
     });
 });
