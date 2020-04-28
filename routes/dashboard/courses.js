@@ -64,7 +64,7 @@ router.post("/", [auth, admin], async (req, res) => {
     number: req.body.number,
     university: req.body.university
   });
-  if (course) return res.status(400).send("Course already registered.");
+  if (course) return res.status(400).send("Course already exist.");
 
   course = new Course(
     _.pick(req.body, [
