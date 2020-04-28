@@ -186,20 +186,63 @@ describe("/api/feeds", () => {
             expect(res.status).toBe(403)
         });
 
-        it("should return 404 if feed does not exist", async () => {
+        it("should return feed if feed was created", async () => {
             user = await User.findByIdAndUpdate(user._id, {
                 isAdmin: true
             }, { new: true });
 
             token = user.generateAuthToken();
 
-            payload = {
-                content: "test"
-            }
-
             const res = await exec();
 
-            expect(res.status).toBe(404);
+            expect(res.status).toBe(200);
+            expect(res.body).toHaveProperty("content");
+            expect(res.body).toHaveProperty("postedBy");
+            expect(res.body).toHaveProperty("course");
         })
+    });
+
+    describe("PUT /", () => {
+        let id;
+        let newContent;
+
+        const exec = async () => {
+            return await request(server)
+                .put(`/api/feeds/${id}`)
+                .set("x-auth-token", token)
+                .send({ content: newContent })
+        };
+
+        beforeEach(async () => {
+            const feed = new Feed({
+                postedBy: user._id,
+                type: "announcement",
+                course: mongoose.Types.ObjectId(),
+                deadline: moment().toJSON(),
+                datePosted: moment().toJSON(),
+                content: "This is another test content"
+            });
+
+            await feed.save();
+
+            id = feed._id;
+
+            newContent = "new content";
+        });
+
+        it("should return 401 if client is not logged in", () => {
+            token = "";
+
+            const res = exec();
+
+            expect(res.status).toBe(401);
+        });
+
+        it("should return 200", () => {
+
+            const res = exec();
+
+            expect(res.status).toBe(200);
+        });
     });
 });

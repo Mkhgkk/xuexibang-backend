@@ -98,6 +98,7 @@ router.put("/:id", [auth, admin, validateObjectId], async (req, res) => {
   );
 
   if (!feed) return res.status(404).send("Feed does not exist.");
+
   res.send(feed);
 });
 

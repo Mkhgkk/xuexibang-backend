@@ -17,11 +17,6 @@ router.post("/", async (req, res) => {
   const token = user.generateAuthToken();
   res.header("x-auth-token", token)
     .header("access-control-expose-headers", "x-auth-token")
-    .header("Access-Control-Allow-Origin", "*")
-    .header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept"
-    )
     .send(token);
 });
 
