@@ -9,23 +9,19 @@ const admin = require("../../middleware/admin");
 
 router.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
+  if (!user) return res.status(401).send("User with the given Id was not found")
 
   const feeds = await Feed.find({ course: { $in: user.courses } })
     .select("-__v")
     .sort("datePosted");
   if (!feeds) return res.send("No feeds found for you");
 
-  // const selectedCourses = user.courses.map(courseId => mongoose.Types.ObjectId(courseId).toHexString());
-
-  // const results = feeds.filter(feed => selectedCourses.includes(mongoose.Types.ObjectId(feed.course).toHexString()));
-
-  // const courses = _.intersection(feeds.map(feed => mongoose.Types.ObjectId(feed.course).toHexString()), selectedCourses);
-
   res.send(feeds);
 });
 
 router.get("/homeworks", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
+  if (!user) return res.status(401).send("User with the given Id was not found")
 
   const homeworks = await Feed.find({
     type: "homework",
@@ -37,6 +33,7 @@ router.get("/homeworks", auth, async (req, res) => {
 
 router.get("/announcements", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
+  if (!user) return res.status(401).send("User with the given Id was not found")
 
   const announcements = await Feed.find({
     type: "announcement",
