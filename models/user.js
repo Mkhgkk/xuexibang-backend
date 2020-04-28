@@ -26,8 +26,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    minlength: 5,
-    maxlength: 1024
+    minlength: 5
   },
   isAdmin: {
     type: Boolean,
@@ -79,9 +78,7 @@ function validateUser(user) {
     userName: Joi.string()
       .min(1)
       .max(50),
-    avatar: Joi.string()
-      .min(5)
-      .max(1024),
+    avatar: Joi.string().min(5),
     inAdmin: Joi.boolean(),
     university: Joi.objectId(),
     major: Joi.objectId(),
