@@ -2,18 +2,19 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 const majorSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    }
-})
+  name: {
+    type: String,
+    required: true
+  }
+});
 
 const Major = mongoose.model("Major", majorSchema);
 
 function validateMajor(major) {
-    const schema = {
-        name: Joi.string().required()
-    }
+  const schema = {
+    name: Joi.string().required()
+  };
+  return Joi.validate(major, schema);
 }
 
 exports.Major = Major;
