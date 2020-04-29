@@ -11,6 +11,12 @@ router.get("/", auth, async (req, res) => {
   res.send(majors);
 });
 
+router.get("/:id", auth, async (req, res) => {
+  const major = await Major.findOne().select("-__v");
+
+  res.send(major);
+});
+
 router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);

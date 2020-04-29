@@ -14,6 +14,14 @@ router.get("/", auth, async (req, res) => {
   res.send(courses);
 });
 
+router.get("/search/:number", auth, async (req, res) => {
+  const courses = await Course.find({ number: req.params.number })
+    .select("-qqNumber, -notes")
+    .sort("name");
+
+  res.send(courses);
+});
+
 //:id equals courseId
 router.get("/course/:id", [auth, validateObjectId], async (req, res) => {
   const course = await Course.findById(req.params.id);
