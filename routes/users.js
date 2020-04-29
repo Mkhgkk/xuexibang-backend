@@ -24,7 +24,8 @@ router.post("/", async (req, res) => {
   await user.save();
 
   const token = user.generateAuthToken();
-  res.header("x-auth-token", token).send(_.pick(user, ["_id", "email"]));
+  //res.header("x-auth-token", token).send(_.pick(user, ["_id", "email"]));
+  res.header("x-auth-token", token).send(token);
 });
 
 router.delete("/", auth, async (req, res) => {
@@ -74,17 +75,19 @@ router.put("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const user = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      userName: req.body.userName,
-      avatar: req.body.avatar,
-      university: req.body.university,
-      major: req.body.major,
-      courses: req.body.courses
-    },
-    { new: true }
-  );
+  let payload = {};
+
+  const keys = Object.keys(req.body);
+
+  let i;
+  for (i = 0; i < keys.length; i++) {
+    key = keys[i];
+    payload[key] = req.body[key];
+  }
+
+  const user = await User.findByIdAndUpdate(req.user._id, payload, {
+    new: true
+  });
 
   res.send(user);
 });

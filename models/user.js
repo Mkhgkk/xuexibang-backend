@@ -79,10 +79,11 @@ function validateUser(user) {
       .min(1)
       .max(50),
     avatar: Joi.string().min(5),
-    inAdmin: Joi.boolean(),
+    isAdmin: Joi.boolean(),
     university: Joi.objectId(),
     major: Joi.objectId(),
-    courses: Joi.array().items(Joi.objectId())
+    courses: Joi.array().items(Joi.objectId()),
+    _id: Joi.objectId()
   });
   return Joi.validate(user, schema);
 }
