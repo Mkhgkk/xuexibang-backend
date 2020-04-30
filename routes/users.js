@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const auth = require("../middleware/auth");
 
 router.get("/me", auth, async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.user._id).select("-password -__v");
   res.send(user);
 });
 
@@ -28,17 +28,20 @@ router.post("/", async (req, res) => {
   res.header("x-auth-token", token).send(token);
 });
 
-router.delete("/", auth, async (req, res) => {
+router.delete("/delete/:email/:password", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let user = await User.findOne({ email: req.body.email });
+  let user = await User.findOne({ email: req.params.email });
   if (!user) return res.status(400).send("Invalid email or password.");
 
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
+  const validPassword = await bcrypt.compare(
+    req.params.password,
+    user.password
+  );
   if (!validPassword) return res.status(400).send("Invalid email or password.");
 
-  user = await User.deleteOne({ email: req.body.email });
+  user = await User.deleteOne({ email: req.params.email });
 
   if (!user) return res.status(404).send("This user does not exist.");
 

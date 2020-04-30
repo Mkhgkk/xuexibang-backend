@@ -12,7 +12,9 @@ router.get("/", auth, async (req, res) => {
 });
 
 router.get("/:id", auth, async (req, res) => {
-  const university = await University.findOne().select("-__v");
+  const university = await University.findOne({ _id: req.params.id }).select(
+    "-__v"
+  );
 
   res.send(university);
 });

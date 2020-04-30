@@ -12,7 +12,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 router.get("/:id", auth, async (req, res) => {
-  const major = await Major.findOne().select("-__v");
+  const major = await Major.findOne({ _id: req.params.id }).select("-__v");
 
   res.send(major);
 });
