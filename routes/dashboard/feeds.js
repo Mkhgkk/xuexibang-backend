@@ -11,11 +11,10 @@ router.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
   if (!user) return res.status(401).send("User with the given Id was not found")
 
-  const feeds = await Feed.find({ course: { $in: user.courses } })
-    .select("-__v")
+  const feeds = await Feed.find({ 'course._id': { $in: user.courses } })
     .sort("datePosted");
   if (!feeds) return res.send("No feeds found for you");
-
+  // console.log(feeds)
   res.send(feeds);
 });
 
@@ -33,7 +32,6 @@ router.get("/homeworks", auth, async (req, res) => {
 
 router.get("/announcements", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
-  if (!user) return res.status(401).send("User with the given Id was not found")
 
   const announcements = await Feed.find({
     type: "announcement",
@@ -98,7 +96,6 @@ router.put("/:id", [auth, admin, validateObjectId], async (req, res) => {
   );
 
   if (!feed) return res.status(404).send("Feed does not exist.");
-
   res.send(feed);
 });
 

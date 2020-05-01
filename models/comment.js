@@ -10,10 +10,26 @@ const commentSchema = new mongoose.Schema({
         required: true,
     },
     postedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: new mongoose.Schema({
+            name: {
+                type: String,
+                required: false
+            },
+            avatar: {
+                type: String,
+            },
+            isAdmin: {
+                type: Boolean,
+                default: true
+            }
+        }),
         required: true
     },
+    // postedBy: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'User',
+    //     required: true
+    // },
     datePosted: {
         type: Date,
         default: moment().toJSON(),
