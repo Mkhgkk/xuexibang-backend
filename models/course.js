@@ -22,7 +22,7 @@ const courseSchema = new mongoose.Schema({
   major: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Major",
-    required: true
+    required: false
   },
   laoshi: {
     type: String
