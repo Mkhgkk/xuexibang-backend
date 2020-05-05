@@ -4,26 +4,26 @@ const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const feedSchema = new mongoose.Schema({
-  postedBy: {
-    type: new mongoose.Schema({
-      name: {
-        type: String,
-      },
-      avatar: {
-        type: String,
-      },
-      isAdmin: {
-        type: Boolean,
-        default: false
-      }
-    }),
-    required: true
-  },
   // postedBy: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "User",
+  //   type: new mongoose.Schema({
+  //     name: {
+  //       type: String,
+  //     },
+  //     avatar: {
+  //       type: String,
+  //     },
+  //     isAdmin: {
+  //       type: Boolean,
+  //       default: false
+  //     }
+  //   }),
   //   required: true
   // },
+  postedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
   type: {
     type: String,
     enum: ["homework", "announcement"],
