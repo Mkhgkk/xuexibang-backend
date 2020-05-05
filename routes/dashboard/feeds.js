@@ -9,18 +9,21 @@ const admin = require("../../middleware/admin");
 
 router.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
-  if (!user) return res.status(401).send("User with the given Id was not found")
+  if (!user)
+    return res.status(401).send("User with the given Id was not found");
 
-  const feeds = await Feed.find({ 'course._id': { $in: user.courses } })
-    .sort("datePosted");
+  const feeds = await Feed.find({ "course._id": { $in: user.courses } }).sort(
+    "datePosted"
+  );
   if (!feeds) return res.send("No feeds found for you");
   // console.log(feeds)
   res.send(feeds);
 });
 
-router.get("/homeworks", auth, async (req, res) => {
+router.get("/homework", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
-  if (!user) return res.status(401).send("User with the given Id was not found")
+  if (!user)
+    return res.status(401).send("User with the given Id was not found");
 
   const homeworks = await Feed.find({
     type: "homework",
@@ -41,7 +44,7 @@ router.get("/announcements", auth, async (req, res) => {
   res.send(announcements);
 });
 
-router.get("/:id/homeworks", [auth, validateObjectId], async (req, res) => {
+router.get("/:id/homework", [auth, validateObjectId], async (req, res) => {
   const course = await Course.findById(req.params.id);
   if (!course)
     return res.status(404).send("The course with the given ID does not exsit.");
@@ -72,7 +75,8 @@ router.post("/", [auth], async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   const course = await Course.findById(req.body.course);
-  if (!course) return res.status(401).send("Course with the given Id was not found");
+  if (!course)
+    return res.status(401).send("Course with the given Id was not found");
 
   let feed = await new Feed({
     postedBy: {
@@ -83,7 +87,7 @@ router.post("/", [auth], async (req, res) => {
     type: req.body.type,
     course: {
       _id: course._id,
-      name: course.name,
+      name: course.name
     },
     content: req.body.content
   });
