@@ -67,14 +67,24 @@ router.get("/:id/announcements", [auth, validateObjectId], async (req, res) => {
   res.send(announcements);
 });
 
-router.post("/", [auth, admin], async (req, res) => {
+router.post("/", [auth], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let feed = new Feed({
-    postedBy: req.body.postedBy,
+  const course = await Course.findById(req.body.course);
+  if (!course) return res.status(401).send("Course with the given Id was not found");
+
+  let feed = await new Feed({
+    postedBy: {
+      _id: req.user._id,
+      name: req.user.userName,
+      avatar: req.user.avatar
+    },
     type: req.body.type,
-    course: req.body.course,
+    course: {
+      _id: course._id,
+      name: course.name,
+    },
     content: req.body.content
   });
   feed = await feed.save();

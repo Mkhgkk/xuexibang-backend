@@ -17,7 +17,7 @@ const courseSchema = new mongoose.Schema({
   university: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "University",
-    required: true
+    required: false
   },
   major: {
     type: mongoose.Schema.Types.ObjectId,
