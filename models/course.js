@@ -40,7 +40,7 @@ const courseSchema = new mongoose.Schema({
     type: String
   },
   qqNumber: {
-    type: Number
+    type: String
   },
   notes: {
     type: String
