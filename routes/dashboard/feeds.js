@@ -12,11 +12,19 @@ router.get("/", auth, async (req, res) => {
   if (!user)
     return res.status(401).send("User with the given Id was not found");
 
+<<<<<<< HEAD
   const feeds = await Feed.find({ "course._id": { $in: user.courses } }).sort(
     "datePosted"
   );
+=======
+  const feeds = await Feed.find({ "course._id": { $in: user.courses } })
+    .populate("postedBy")
+    .select("-__v")
+    .sort("datePosted");
+
+>>>>>>> a9d6d42433244e18cd1ba7b36f4da7a6faf370b7
   if (!feeds) return res.send("No feeds found for you");
-  // console.log(feeds)
+
   res.send(feeds);
 });
 
@@ -27,7 +35,7 @@ router.get("/homework", auth, async (req, res) => {
 
   const homeworks = await Feed.find({
     type: "homework",
-    course: { $in: user.courses }
+    course: { $in: user.courses },
   }).sort("datePosted");
 
   res.send(homeworks);
@@ -38,7 +46,7 @@ router.get("/announcements", auth, async (req, res) => {
 
   const announcements = await Feed.find({
     type: "announcement",
-    course: { $in: user.courses }
+    course: { $in: user.courses },
   }).sort("datePosted");
 
   res.send(announcements);
@@ -51,7 +59,7 @@ router.get("/:id/homework", [auth, validateObjectId], async (req, res) => {
 
   const homeworks = await Feed.find({
     type: "homework",
-    course: req.params.id
+    course: req.params.id,
   });
 
   res.send(homeworks);
@@ -64,7 +72,7 @@ router.get("/:id/announcements", [auth, validateObjectId], async (req, res) => {
 
   const announcements = await Feed.find({
     type: "announcement",
-    course: req.params.id
+    course: req.params.id,
   });
 
   res.send(announcements);
@@ -79,17 +87,13 @@ router.post("/", [auth], async (req, res) => {
     return res.status(401).send("Course with the given Id was not found");
 
   let feed = await new Feed({
-    postedBy: {
-      _id: req.user._id,
-      name: req.user.userName,
-      avatar: req.user.avatar
-    },
+    postedBy: req.user._id,
     type: req.body.type,
     course: {
       _id: course._id,
       name: course.name
     },
-    content: req.body.content
+    content: req.body.content,
   });
   feed = await feed.save();
 
@@ -104,7 +108,7 @@ router.put("/:id", [auth, admin, validateObjectId], async (req, res) => {
     req.params.id,
     {
       deadline: req.body.deadline,
-      content: req.body.content
+      content: req.body.content,
     },
     { new: true }
   );
