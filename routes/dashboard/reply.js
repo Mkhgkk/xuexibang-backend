@@ -9,7 +9,7 @@ const router = express.Router();
 // getting all replies for a comment
 // :id equals commentId
 router.get("/:id", async (req, res) => {
-    const results = await Reply.find({ commentId: req.params.id });
+    const results = await Reply.find({ commentId: req.params.id }).populate('postedBy');
     res.send(results)
 });
 

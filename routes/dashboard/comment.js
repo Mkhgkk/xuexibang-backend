@@ -9,7 +9,7 @@ const validateObjectId = require("../../middleware/validateObjectId");
 const router = express.Router();
 
 router.get("/:feedId", async (req, res) => {
-    const results = await Comment.find({ feedId: req.params.feedId });
+    const results = await Comment.find({ feedId: req.params.feedId }).populate('postedBy');
     res.send(results)
 });
 
