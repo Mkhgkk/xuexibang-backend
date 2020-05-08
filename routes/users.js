@@ -4,6 +4,7 @@ const { User, validate } = require("../models/user");
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const auth = require("../middleware/auth");
+const upload = require("../middleware/fileUpload");
 
 router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password -__v");
@@ -98,6 +99,24 @@ router.put("/", auth, async (req, res) => {
   });
 
   res.send(user);
+});
+
+router.put("/avatar", auth, upload.single('avatar'), async (req, res) => {
+  if (!req.file) {
+    // console.log("No file received");
+    return res.status(401).send("No file received");
+
+  } else {
+    const host = req.hostname;
+    const filePath = req.protocol + "://" + host + ':5000' + '/images/' + req.file.filename;
+    console.log('file received', filePath);
+
+    await User.findByIdAndUpdate(req.user._id, {
+      avatar: filePath
+    }, { new: true });
+
+    return res.send(filePath)
+  }
 });
 
 module.exports = router;

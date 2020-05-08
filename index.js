@@ -9,6 +9,11 @@ require("./startup/db")();
 require("./startup/config")();
 
 const port = process.env.POST || 5000;
+
+// require("./startup/static")(port)
+
+app.use(express.static('public'))
+
 const server = app.listen(port, () =>
   winston.info(`Listening on port ${port}...`)
 );
