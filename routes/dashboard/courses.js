@@ -23,7 +23,9 @@ router.get("/search/:number", auth, async (req, res) => {
 
 //:id equals courseId
 router.get("/course/:id", [auth, validateObjectId], async (req, res) => {
-  const course = await Course.findById(req.params.id).select("-__v");
+  const course = await Course.findById(req.params.id)
+    .populate("university major")
+    .select("-__v");
   if (!course)
     return res.status(404).send("The course with the given ID dosen't exist.");
 
@@ -50,13 +52,16 @@ router.get("/myCourses", auth, async (req, res) => {
 
   const courses = await Course.find({
     _id: { $in: user.courses }
-  }).sort("name");
+  })
+    .populate("university major")
+    .sort("name");
 
   res.send(courses);
 });
 
 router.get("/admin", [auth, admin], async (req, res) => {
   const courses = await Course.find({ admin: { $in: [req.user._id] } })
+
     .select("name _id time")
     .sort("name");
 
