@@ -55,7 +55,8 @@ function validateFeed(feed) {
     datePosted: Joi.date(),
     content: Joi.string()
       .min(2)
-      .max(3000)
+      .max(3000),
+    _id: Joi.objectId()
   };
 
   return Joi.validate(feed, schema);

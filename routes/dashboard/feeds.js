@@ -29,8 +29,8 @@ router.get("/homework", auth, async (req, res) => {
 
   const homeworks = await Feed.find({
     type: "homework",
-    course: { $in: user.courses }
-  }).sort("datePosted");
+    "course._id": { $in: user.courses }
+  }).sort("deadline");
 
   res.send(homeworks);
 });
@@ -40,8 +40,8 @@ router.get("/announcements", auth, async (req, res) => {
 
   const announcements = await Feed.find({
     type: "announcement",
-    course: { $in: user.courses }
-  }).sort("datePosted");
+    "course._id": { $in: user.courses }
+  }).sort("-datePosted");
 
   res.send(announcements);
 });
@@ -53,8 +53,11 @@ router.get("/:id/homework", [auth, validateObjectId], async (req, res) => {
 
   const homeworks = await Feed.find({
     type: "homework",
-    course: req.params.id
-  });
+    "course._id": req.params.id
+  })
+    .populate("postedBy")
+    .select("-__v")
+    .sort("-datePosted");
 
   res.send(homeworks);
 });
@@ -66,8 +69,11 @@ router.get("/:id/announcements", [auth, validateObjectId], async (req, res) => {
 
   const announcements = await Feed.find({
     type: "announcement",
-    course: { $in: req.params.id }
-  });
+    "course._id": req.params.id
+  })
+    .populate("postedBy")
+    .select("-__v")
+    .sort("-datePosted");
 
   res.send(announcements);
 });
@@ -87,7 +93,8 @@ router.post("/", [auth], async (req, res) => {
       _id: course._id,
       name: course.name
     },
-    content: req.body.content
+    content: req.body.content,
+    deadline: req.body.deadline
   });
   feed = await feed.save();
 
@@ -98,16 +105,20 @@ router.put("/:id", [auth, admin, validateObjectId], async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const feed = await Feed.findByIdAndUpdate(
-    req.params.id,
-    {
-      deadline: req.body.deadline,
-      content: req.body.content
-    },
-    { new: true }
-  );
+  let payload = {};
 
-  if (!feed) return res.status(404).send("Feed does not exist.");
+  const keys = Object.keys(req.body);
+
+  let i;
+  for (i = 0; i < keys.length; i++) {
+    key = keys[i];
+    payload[key] = req.body[key];
+  }
+
+  const feed = await Feed.findByIdAndUpdate(req.body._id, payload, {
+    new: true
+  });
+
   res.send(feed);
 });
 
