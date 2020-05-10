@@ -96,6 +96,11 @@ router.post("/", [auth, admin], async (req, res) => {
 
   course = await course.save();
 
+  const user = await User.findById(req.user._id);
+  user.courses = [...user.courses, course._id];
+
+  await user.save();
+
   res.send(course);
 });
 

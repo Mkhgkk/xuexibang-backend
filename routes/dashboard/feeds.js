@@ -15,7 +15,7 @@ router.get("/", auth, async (req, res) => {
   const feeds = await Feed.find({ "course._id": { $in: user.courses } })
     .populate("postedBy")
     .select("-__v")
-    .sort("datePosted");
+    .sort("-datePosted");
 
   if (!feeds) return res.send("No feeds found for you");
 
