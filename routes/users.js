@@ -101,7 +101,7 @@ router.put("/", auth, async (req, res) => {
   res.send(user);
 });
 
-router.put("/avatar", auth, upload.single('avatar'), async (req, res) => {
+router.post("/avatar", auth, upload.single('avatar'), async (req, res) => {
   if (!req.file) {
     // console.log("No file received");
     return res.status(401).send("No file received");
