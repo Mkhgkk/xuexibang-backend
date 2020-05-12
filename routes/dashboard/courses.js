@@ -62,7 +62,7 @@ router.get("/myCourses", auth, async (req, res) => {
 router.get("/admin", [auth, admin], async (req, res) => {
   const courses = await Course.find({ admin: { $in: [req.user._id] } })
 
-    .select("name _id time")
+    .select("name _id time laoshi")
     .sort("name");
 
   res.send(courses);
