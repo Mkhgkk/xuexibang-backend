@@ -5,6 +5,7 @@ const router = express.Router();
 const auth = require("../../middleware/auth");
 const validateObjectId = require("../../middleware/validateObjectId");
 const admin = require("../../middleware/admin");
+const upload = require("../../middleware/fileUpload");
 
 // router.get("/", auth, async (req, res) => {
 //   const courses = await Course.find()
@@ -131,6 +132,36 @@ router.put("/:id", [auth, admin, validateObjectId], async (req, res) => {
   });
 
   res.send(course);
+});
+
+router.post("/thumbnail/:id", auth, upload.single('avatar'), async (req, res) => {
+  if (!req.file) {
+    // console.log("No file received");
+    return res.status(401).send("No file received");
+
+  } else {
+    const host = req.hostname;
+    const filePath = req.protocol + "://" + host + ':5000' + '/images/' + req.file.filename;
+    console.log('file received', filePath);
+
+    await Course.findByIdAndUpdate(req.params.id, {
+      thumbnail: filePath
+    }, { new: true });
+
+    return res.send(filePath)
+  }
+});
+
+router.post("/thumbnail/", auth, upload.single('avatar'), async (req, res) => {
+  if (!req.file) {
+    return res.status(401).send("No file received");
+
+  } else {
+    const host = req.hostname;
+    const filePath = req.protocol + "://" + host + ':5000' + '/images/' + req.file.filename;
+
+    return res.send(filePath)
+  }
 });
 
 module.exports = router;
